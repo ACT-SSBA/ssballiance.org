@@ -22,6 +22,9 @@
     <meta name="twitter:title" content="Small Software Business Owners Alliance">
     <meta name="twitter:description" content="Tell Congress that small software businesses are in danger because of changes to Section 174">
     <meta name="twitter:image" content="https://ssballiance.org/card-updated.png">
+    
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   </head>
   <body>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
@@ -30,9 +33,26 @@
 
     
     <div class="mx-auto mt-8 max-w-7xl px-6 sm:mt-8 lg:px-8">
+       <div class="pb-8 flex items-center">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          <a href="/">
+            The Small Software Business Alliance
+          </a>
+        </h2>
+
+        <div class="ml-auto">
+          <a href="/index" class="text-sm font-semibold leading-6 text-gray-900 mr-4">Home</a>
+
+          <a href="/about" class="text-sm font-semibold leading-6 text-gray-900 mr-4">Join</a>
+
+          <a href="/lettertocongress.pdf" class="text-sm font-semibold leading-6 text-gray-900 mr-4">Letter to Congress</a>
+
+          <a href="/privacy.html" class="text-sm font-semibold leading-6 text-gray-900">Privacy Policy</a>
+        </div>
+      </div>
+
       <div class="mx-auto lg:mx-0">
-        <a href="/index" class="text-sm font-semibold leading-6 text-gray-900"><h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">The Small Software Business Alliance</h2><br></a>
-          <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-2xl">800+ business owners fighting to keep tax rules from destroying small tech companies</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-2xl">800+ business owners fighting to keep tax rules from destroying small tech companies</h2>
         <p class="mt-6 text-lg leading-8 text-gray-600">The Small Software Business Alliance is an informal group of small software and technology business founders who are united to fix Section 174. Software development and other research and development expenses must be fully expensable.</p>
 
         <p class="mt-6 text-lg leading-8 text-gray-600">On April 18th, 2023, we sent a <u><a href="https://ssballiance.org/lettertocongress.pdf">letter to Congress</a></u> urging them to take action and make software development and R&D expensable again. That letter was signed by 594 small software businesses in all 50 states. </p>
@@ -119,12 +139,12 @@
         <div>
 
         <div>
-          <div class="block my-8">
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
+          <!-- <div class="block my-8">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
             </svg>
             <strong> IMPORTANT:</strong> <strong>Customize the text.</strong>
-              <p>If Congressional staff receive the exact same text from 10 people, it only counts as one email—not 10. So add your own flavor to the template!</p>
+              <p>If Congressional staff receive the exact same text from 10 people, it only counts as one email—not 10. So add your own flavor to the template!</p> 
           </div> -->
           <div x-show="currentTab === 'Founder or Business Owner'">
             <textarea rows="4" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">Hi. My name is [your name] and and I live in [state]. Please tell the Senator to support HR 7024, the Tax Relief for American Families and Workers Act of 2024, without amendments. Thank you.</textarea>
@@ -178,6 +198,43 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
                     <span x-text="legislator.contact.phone"></span>
                   </p>
+                                  </div>
+                </template>
+              </div>
+            </div>
+            </template>
+          </div>
+        </div>
+
+        <script>
+        function legislatorLookup() {
+          return {
+            errorMessage: null,
+            response: null,
+            districts: null,
+            zip: '',
+            async findLegislator() {
+              this.errorMessage = null;
+              if (this.zip.length !== 5) {
+                this.errorMessage = 'Please enter your 5-digit zip code.'
+              } else {
+                try {
+                  this.response = await axios.get('https://api.geocod.io/v1.7/geocode', {
+                    params: {
+                      postal_code: this.zip,
+                      api_key: 'c5c546001a00815485a5654a651a085854c4409',
+                      fields: 'cd'
+                    }
+                  });
+                  this.districts = this.response?.data?.results[0].fields?.congressional_districts;
+                } catch (error) {
+                  this.errorMessage = 'Could not find legislators for this zip code';
+                }
+              }
+            }
+          }
+        }
+        </script>
 
     <!-- Team section -->
     
@@ -253,10 +310,11 @@
 
 
       </ul>
-    </div>
+    </div> 
+  -->
     
 
-  <!- Footer -->
+  <!-- Footer -->
 
         <!-- Form -->
     <section>
@@ -275,20 +333,19 @@
         </div>
     </section> 
 
-  <footer class="mx-auto mt-40 max-w-7xl overflow-hidden px-6 pb-4 sm:mt-64 sm:pb-8 lg:px-8">
+    <footer class="mx-auto mt-40 max-w-7xl overflow-hidden px-6 pb-4 sm:mt-64 sm:pb-8 lg:px-8">
+      <p class="mt-10 text-center text-xs leading-5 text-gray-500">This website was created by <a href="https://twitter.com/mjwhansen">Michele Hansen</a>. Questions? <a href="mailto:ssballiance@mjwhansen.com">Email Michele</a>
+    </footer>
 
-    <p class="mt-10 text-center text-xs leading-5 text-gray-500">This website was created by <a href="https://twitter.com/mjwhansen">Michele Hansen</a>. Questions? <a href="mailto:ssballiance@mjwhansen.com">Email Michele</a>
-  </footer>
-        <div class="pb-8 flex gap-x-12 justify-center relative z-10">
 
-        <a href="/index" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
+    <div class="pb-8 flex gap-x-12 justify-center relative z-10">
+      <a href="/index" class="text-sm font-semibold leading-6 text-gray-900">Home</a>
 
-        <a href="/about" class="text-sm font-semibold leading-6 text-gray-900">Join</a>
+      <a href="/about" class="text-sm font-semibold leading-6 text-gray-900">Join</a>
 
-        <a href="/lettertocongress.pdf" class="text-sm font-semibold leading-6 text-gray-900">Letter to Congress</a>
+      <a href="/lettertocongress.pdf" class="text-sm font-semibold leading-6 text-gray-900">Letter to Congress</a>
 
-        <a href="/privacy.html" class="text-sm font-semibold leading-6 text-gray-900">Privacy Policy</a>
-
+      <a href="/privacy.html" class="text-sm font-semibold leading-6 text-gray-900">Privacy Policy</a>
     </div>
 </div>
   </body>
