@@ -1,0 +1,5 @@
+﻿{
+  "Description": "Domain ownership verification file for Microsoft 365 - place in the website root",
+  "Domain": "ssballiance.org",
+  "Id": "cb8a0d99-da11-4b2f-9065-6c3dce59b4f7"
+}
